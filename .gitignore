@@ -2,3 +2,5 @@ __pycache__
 data
 note.ipynb
 .DS_Store
+.tmp.driveupload
+.tmp.drivedownload

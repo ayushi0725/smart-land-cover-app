@@ -1,11 +1,12 @@
 import os
 import cv2
+from PIL import Image
 import torch
 from torch.utils.data.dataset import Dataset
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
-from utils import image_to_one_hot
+from utils import one_hot_to_image, image_to_class_index
 
 
 class SatelliteImageDataset(Dataset):
@@ -38,19 +39,15 @@ class SatelliteImageDataset(Dataset):
         mask = cv2.imread(mask_path)
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
 
-        plt.imshow(mask)
-        plt.show()
-            
-        # Convert the mask into one hot encoding with 1 channel for each class
-        mask = image_to_one_hot(mask, self.num_classes, self.color_map)
-        # (h, w, c)
-        mask = torch.tensor(mask, dtype=torch.float32).permute(1, 2, 0)
-
         if self.transform:
+            # (c, h, w)
             image = self.transform(image)
-            resized_mask = cv2.resize(mask.numpy(), (512, 512))
+            resized_mask = cv2.resize(mask, (512, 512))
             # (c, h, w)
             mask = torch.tensor(resized_mask).permute(2, 0, 1)
+
+        mask = image_to_class_index(mask, self.color_map)
+        mask = mask.long()
 
         return image, mask
 
@@ -60,9 +57,8 @@ class SatelliteImageDataset(Dataset):
 
 if __name__ == '__main__':
     transform = transforms.Compose([
-        transforms.ToPILImage(),
+        #transforms.ToPILImage(),
         transforms.Resize((512, 512)),
-        transforms.ToTensor()
     ])
 
     dataset = SatelliteImageDataset(
@@ -74,11 +70,14 @@ if __name__ == '__main__':
     img, mask = dataset[0]
     print(img.shape)
     print(mask.shape)
+    mask = torch.tensor(one_hot_to_image(mask, dataset.color_map))
+    print(mask.shape)
+    plt.imshow(mask.permute(1, 2, 0))
 
-    plt.imshow(img.permute(1, 2, 0))
     plt.show()
-    for i in range(6):
+    """for i in range(6):
         plt.imshow(mask[i], cmap='gray')
-        plt.show()
+        plt.show()"""
 
     print(mask.min(), mask.max())
+
