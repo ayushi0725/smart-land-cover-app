@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import torch
 
 
@@ -23,28 +24,32 @@ def class_index_to_one_hot(img, color_map):
     return one_hot_mask # output (c, h, w)
 
 
-def one_hot_to_image(one_hot_img, color_map, device='cpu'):
-    print(one_hot_img.shape)
-    h, w = one_hot_img.shape[2:] # input (b, c, h, w)
-    img = torch.zeros((3, h, w), dtype=one_hot_img.dtype).to(device)
-                   
-    class_indices = torch.argmax(one_hot_img, axis=0)
+def one_hot_to_image(one_hot_imgs, color_map, device='cpu'):
+    b, c, h, w = one_hot_imgs.shape # input (b, 6, h, w)
+    img_batch = torch.zeros((b, 3, h, w), dtype=torch.uint8).to(device)
 
     # reverse the color map
     color_map = {idx: color for color, idx in color_map.items()}
 
-    for color_map_idx, color in color_map.items():
-        # assign the colors to each color channel        
-        for ch in range(3):
-            img[ch, color_map_idx == class_indices] = color[ch]
+    for i in range(b):
+        class_indices = torch.argmax(one_hot_imgs[i], axis=0)
 
-    return img # output (c, h, w)
+        img = torch.zeros((3, h, w), dtype=torch.uint8).to(device)
+
+        for color_map_idx, color in color_map.items():
+            # assign the colors to each color channel        
+            for ch in range(3):
+                img[ch, color_map_idx == class_indices] = color[ch]
+
+        img_batch[i] = img
+
+    return img_batch # output (b, 3, h, w)
 
 
-def class_index_to_image(class_index_map, color_map):
+def class_index_to_image(class_index_map, color_map, device='cpu'):
     # batch_class_index_map: (batch, h, w)
     b, h, w = class_index_map.shape
-    img_batch = torch.zeros((b, 3, h, w), dtype=torch.uint8)
+    img_batch = torch.zeros((b, 3, h, w), dtype=torch.uint8).to(device)
 
     # reverse the color map
     color_map = {v: k for k, v in color_map.items()}
@@ -69,13 +74,13 @@ def image_to_class_index(img, color_map):
     return class_index_map
 
 
-def plot_prediction(x, y, y_pred):
+def plot_prediction(x, y, y_pred, color_map, mask_labels):
     fig, axes = plt.subplots(1, 3, figsize=(10, 10))
     items = [(x, 'Image'), (y, 'Truth'), (y_pred, 'Prediction')]
 
     for i, (img, title) in enumerate(items):
         axes[i].imshow(img[0].cpu().permute(1, 2, 0))
-        axes.set_title(title)
+        axes[i].set_title(title)
 
     plt.tight_layout()
     plt.show()
@@ -99,3 +104,15 @@ def compute_accuracy(y, y_pred, device='cpu'):
         acc_list.append(acc)  
 
     return np.mean(acc_list)
+
+
+def get_color_patches(color_map, mask_labels):
+    patches = []
+
+    for color, label in color_map.items():
+        patches.append(mpatches.Patch(
+            color=np.array(color) / 255,
+            label=mask_labels[label]
+        ))
+
+    return patches
