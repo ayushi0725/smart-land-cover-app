@@ -41,6 +41,22 @@ def one_hot_to_image(one_hot_img, color_map, device='cpu'):
     return img # output (c, h, w)
 
 
+def class_index_to_image(class_index_map, color_map):
+    # batch_class_index_map: (batch, h, w)
+    b, h, w = class_index_map.shape
+    img_batch = torch.zeros((b, 3, h, w), dtype=torch.uint8)
+
+    # reverse the color map
+    color_map = {v: k for k, v in color_map.items()}
+
+    for class_idx, color in color_map.items():
+        mask = class_index_map == class_idx
+        for i in range(3):  
+            img_batch[:, i, :, :][mask] = color[i]
+
+    return img_batch  # img_batch: (b, c, h, w)
+
+
 def image_to_class_index(img, color_map):
     h, w = img.shape[1:]  # img: (c, h, w)
     class_index_map = torch.zeros((h, w))
@@ -58,7 +74,7 @@ def plot_prediction(x, y, y_pred):
     items = [(x, 'Image'), (y, 'Truth'), (y_pred, 'Prediction')]
 
     for i, (img, title) in enumerate(items):
-        axes[i].imshow(img.cpu().permute(1, 2, 0))
+        axes[i].imshow(img[0].cpu().permute(1, 2, 0))
         axes.set_title(title)
 
     plt.tight_layout()
