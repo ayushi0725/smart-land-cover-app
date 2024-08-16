@@ -41,7 +41,3 @@ class DownSample(nn.Module):
     def forward(self, x):
         x = self.double_conv(x)
         return self.pool(x), x
-
-
-class Attention(nn.Module):
-    pass

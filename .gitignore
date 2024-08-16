@@ -4,3 +4,4 @@ note.ipynb
 .DS_Store
 .tmp.driveupload
 .tmp.drivedownload
+unet/unet_archive.py
