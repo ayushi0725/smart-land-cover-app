@@ -40,6 +40,30 @@ class ResBlock(nn.Module):
         return output
     
 
+class DownSampleResBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, dilation_list):
+        self.res_block = ResBlock(in_channels, dilation_list)
+        self.down_conv = nn.Conv2d(
+            in_channels, out_channels, kernel_size=1, stride=2
+        )
+
+    def forward(self, x):
+        x = self.res_block(x)
+        return self.down_conv(x)
+    
+
+class UpSampleResBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, dilation_list):
+        self.res_block = ResBlock(in_channels, dilation_list)
+        self.up_conv = nn.ConvTranspose2d(
+            in_channels, out_channels, kernel_size=2, stride=2
+        )
+
+    def forward(self, x):
+        x = self.res_block(x)
+        return self.up_conv(x)
+    
+
 class Combine(nn.Module):
     def __init__(self, in_channels, out_channels):
         # in_channels: x1.features + x2.features
@@ -99,7 +123,7 @@ class PSPPooling(nn.Module):
 
 if __name__ == '__main__':
     input_tensor = torch.randn(1, 64, 32, 32)
-    model = ResBlock(64, dilation_list=[1, 2, 4])
+    model = ResBlock(64, dilation_list=[1])
     output_tensor = model(input_tensor)
     print(input_tensor.shape)
     print(output_tensor.shape)
