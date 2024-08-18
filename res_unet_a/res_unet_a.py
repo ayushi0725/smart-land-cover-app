@@ -11,8 +11,9 @@ from .modules import (
 
 
 class ResUNetA(nn.Module):
-    """ResUNet-a d6 model
+    """ResUNet-a d6 single-task model
 
+    ResUNet + Atrous + PSP
     input_shape: (b, c, >= 512, >= 512)
     
     Reference:
@@ -50,7 +51,7 @@ class ResUNetA(nn.Module):
             PSPPooling(32), # 30
         ])
         
-        self.fc = nn.Conv2d(32, out_channels, kernel_size=1, stride=1) # 31
+        self.out = nn.Conv2d(32, out_channels, kernel_size=1, stride=1) # 31
 
     def forward(self, x):
         encoder_output_stack = []
@@ -79,3 +80,4 @@ if __name__ == '__main__':
 
     print(x.shape)
     print(out.shape)
+    print(sum(p.numel() for p in model.parameters()))
