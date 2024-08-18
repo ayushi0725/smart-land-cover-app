@@ -43,7 +43,7 @@ class ResUNetA(nn.Module):
             Combine(128 * 2, 128), # 21
             UpSampleResBlock(128, 64, dilation_list=[1, 3, 15]), # 22 - 23
             Combine(64 * 2, 64), # 24
-            UpSampleResBlock(64, 3, dilation_list=[1, 3, 15, 31]), # 25 - 26
+            UpSampleResBlock(64, 32, dilation_list=[1, 3, 15, 31]), # 25 - 26
             Combine(32 * 2, 32), # 27
             ResBlock(32, dilation_list=[1, 3, 15, 31]), # 28
             Combine(32 * 2, 32), # 29

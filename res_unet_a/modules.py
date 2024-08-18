@@ -42,6 +42,7 @@ class ResBlock(nn.Module):
 
 class DownSampleResBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dilation_list):
+        super().__init__()
         self.res_block = ResBlock(in_channels, dilation_list)
         self.down_conv = nn.Conv2d(
             in_channels, out_channels, kernel_size=1, stride=2
@@ -54,6 +55,7 @@ class DownSampleResBlock(nn.Module):
 
 class UpSampleResBlock(nn.Module):
     def __init__(self, in_channels, out_channels, dilation_list):
+        super().__init__()
         self.res_block = ResBlock(in_channels, dilation_list)
         self.up_conv = nn.ConvTranspose2d(
             in_channels, out_channels, kernel_size=2, stride=2
