@@ -70,7 +70,7 @@ class ResUNetA(nn.Module):
             else:
                 x = layer(x)
 
-        return self.fc(x)
+        return self.out(x)
     
 
 if __name__ == '__main__':
