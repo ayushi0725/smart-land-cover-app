@@ -4,3 +4,4 @@ data
 .tmp.driveupload
 .tmp.drivedownload
 unet/unet_archive.py
+res_unet_a/res_unet_a_50ep_checkpoint.pth

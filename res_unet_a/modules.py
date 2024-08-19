@@ -35,7 +35,7 @@ class ResBlock(nn.Module):
         output = x
         
         for branch in self.branches:
-            output += branch(x)
+            output = output + branch(x)
         
         return output
     
