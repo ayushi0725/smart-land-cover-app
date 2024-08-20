@@ -9,23 +9,23 @@ class TanimotoLoss(nn.Module):
 
     def forward(self, y_pred, y):
         """
-        Input shapes
+        Input shapes (one-hot encoded)
         y_pred: (b, c, h, w)
         y: (b, c, h, w)
         """
         p, l = F.softmax(y_pred, 1), y
         epsilon = 1e-7
 
-        V = torch.sum(l, dim=[1, 2])
+        V = torch.mean(torch.sum(l, dim=[2, 3]), dim=0)
         w = V ** -2
 
         p2 = p ** 2
         l2 = l ** 2
         
-        sum_prod_p_l = torch.sum(p * l, dim=[1, 2])
+        sum_prod_p_l = torch.sum(p * l, dim=[2, 3])
         numerator = torch.sum(w * sum_prod_p_l)
 
-        sum_p2_l2 = torch.sum(p2 + l2, dim=[1, 2])
+        sum_p2_l2 = torch.sum(p2 + l2, dim=[2, 3])
         sum_p2_l2_minus_p_l = sum_p2_l2 - sum_prod_p_l
         denominator = torch.sum(w * sum_p2_l2_minus_p_l)
 
