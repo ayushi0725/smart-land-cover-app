@@ -10,11 +10,10 @@ from utils import one_hot_to_image, image_to_class_index
 
 
 class SatelliteImageDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, num_classes=6, transform=None):
+    def __init__(self, image_dir, mask_dir, num_classes=6):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.num_classes = num_classes
-        self.transform = transform
 
         self.image_filenames = sorted(os.listdir(self.image_dir))
         self.mask_filenames = sorted(os.listdir(self.mask_dir))
@@ -28,6 +27,8 @@ class SatelliteImageDataset(Dataset):
             (155, 155, 155): 5 # unlabeled / unknown
         }
 
+        self.mask_labels = ['building', 'land', 'road', 'vegetation', 'water', 'unlabeled']
+
         assert len(self.image_filenames) == len(self.mask_filenames)
 
     def __getitem__(self, i):
@@ -39,12 +40,16 @@ class SatelliteImageDataset(Dataset):
         mask = cv2.imread(mask_path)
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
 
-        if self.transform:
-            # (c, h, w)
-            image = self.transform(image)
-            resized_mask = cv2.resize(mask, (512, 512))
-            # (c, h, w)
-            mask = torch.tensor(resized_mask).permute(2, 0, 1)
+        transform = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((512, 512)),
+                transforms.ToTensor()
+            ])
+        # (c, h, w)
+        image = transform(image)
+        resized_mask = cv2.resize(mask, (512, 512))
+        # (c, h, w)
+        mask = torch.tensor(resized_mask).permute(2, 0, 1)
 
         mask = image_to_class_index(mask, self.color_map)
         mask = mask.long()

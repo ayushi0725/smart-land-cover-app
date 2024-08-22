@@ -81,6 +81,7 @@ def plot_prediction(x, y, y_pred, color_map, mask_labels):
     for i, (img, title) in enumerate(items):
         axes[i].imshow(img[0].cpu().permute(1, 2, 0))
         axes[i].set_title(title)
+        axes[i].axis('off')
 
     plt.tight_layout()
     plt.show()
@@ -104,6 +105,45 @@ def compute_accuracy(y, y_pred, device='cpu'):
         acc_list.append(acc)  
 
     return np.mean(acc_list)
+
+
+def compute_per_class_f1_score(y, y_pred, num_classes, device='cpu'):
+    y_pred = torch.argmax(y_pred, 1)
+
+    epsilon = 1e-7
+    TP = torch.zeros(num_classes).to(device)
+    FP = torch.zeros(num_classes).to(device)
+    FN = torch.zeros(num_classes).to(device)
+
+    for c in range(num_classes):
+        TP[c] = torch.sum((y == c) & (y_pred == c)).item()
+        FP[c] = torch.sum((y != c) & (y_pred == c)).item()
+        FN[c] = torch.sum((y != c) & (y_pred != c)).item()
+
+    precision = TP / (TP + FP + epsilon)
+    recall = TP / (TP + FN + epsilon)
+
+    f1_scores = 2 * precision * recall / (precision + recall + epsilon)
+
+    return f1_scores.cpu().numpy()
+
+
+def print_iou(iou_scores, mask_labels):
+    print('IOU...', end=' ')
+    for i, label in enumerate(mask_labels):
+        if iou_scores[i]:
+            print(f'{label}: {iou_scores[i]:.2f}', end=' ')
+    print()
+
+
+def get_iou_by_class(iou_scores, avg=False):
+    transposed_iou = iou_scores.T
+    removed_0_iou = [row[row != 0] for row in transposed_iou]
+    
+    if avg:
+        removed_0_iou = [torch.mean(row).item() for row in removed_0_iou]
+    
+    return [row.tolist() for row in removed_0_iou]
 
 
 def get_color_patches(color_map, mask_labels):
