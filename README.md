@@ -1,2 +1,2 @@
-# UNets-with-PyTorch
-// Implementation of UNet Architectures using PyTorch //
+# Landcover Segmentation with UNets
+Semantic segmentation of satellite images with UNets and ResUNet-a in PyTorch
