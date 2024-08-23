@@ -141,7 +141,7 @@ def get_iou_by_class(iou_scores, avg=False):
     removed_0_iou = [row[row != 0] for row in transposed_iou]
     
     if avg:
-        removed_0_iou = [torch.mean(row).item() for row in removed_0_iou]
+        return [torch.mean(row).item() for row in removed_0_iou]
     
     return [row.tolist() for row in removed_0_iou]
 
