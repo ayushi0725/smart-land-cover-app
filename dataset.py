@@ -43,10 +43,13 @@ class SatelliteImageDataset(Dataset):
         transform = transforms.Compose([
                 transforms.ToPILImage(),
                 transforms.Resize((512, 512)),
-                transforms.ToTensor()
+                transforms.ColorJitter(contrast=(1.25, 1.25)),
+                transforms.ToTensor(),
             ])
         # (c, h, w)
         image = transform(image)
+        sharpened_image = transforms.functional.adjust_sharpness(image, 2)
+        
         resized_mask = cv2.resize(mask, (512, 512))
         # (c, h, w)
         mask = torch.tensor(resized_mask).permute(2, 0, 1)
@@ -54,7 +57,7 @@ class SatelliteImageDataset(Dataset):
         mask = image_to_class_index(mask, self.color_map)
         mask = mask.long()
 
-        return image, mask
+        return sharpened_image, mask
 
     def __len__(self):
         return len(self.image_filenames)

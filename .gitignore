@@ -3,3 +3,4 @@ data
 .DS_Store
 *.pth
 test.ipynb
+train_res_unet_a_copy.ipynb
