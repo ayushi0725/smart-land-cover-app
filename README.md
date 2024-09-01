@@ -5,10 +5,16 @@ Semantic segmentation for the [Multi-Source Satellite Imagery for Segmentation D
 <img src='/img/unet_segmentation_results.png'>
 
 # Preprocessing
+<p align='center'>
+  <img src='/img/preprocessing.png' width='60%'>
+</p>
 
 # Model Comparison
 ## Accuracy
-<img src='/img/model_acc.png' width='100%'>
+
+<p align='center'>
+  <img src='/img/model_acc.png' width='60%'>
+</p>
 
 ## Intersection Over Union (IOU)
 <img src='img/unet_iou.png' width='50%'><img src='img/resuneta_iou.png' width='50%'>
