@@ -109,7 +109,6 @@ def preprocessing(im):
 
 st.header("""
 Land Cover Segmentation App
-developed by Tom Lam
 """)
 
 img_col1, img_col2 = st.columns(2)
@@ -120,11 +119,13 @@ with st.sidebar:
 
     st.write("""
     # Use a random unseen image
+    The unseen image is selected from the test dataset, where it shares a similar color distribution with the partition of the dataset used for training.
     """)
     example_button = st.button("Get Segmented Mask", key=0)
 
     st.write("""
     # Use a custom image
+    For demostration purpose only, the model does not generalize well with real-world data.
     """)
 
     uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg"])
