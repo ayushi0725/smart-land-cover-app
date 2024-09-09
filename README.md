@@ -1,6 +1,9 @@
 # Land Cover Segmentation with UNets (in progress)
-Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Dataset](https://www.kaggle.com/datasets/hammadjavaid/multi-source-satellite-imagery-for-segmentation/data) with [UNet](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28) and [ResUNet-a](https://arxiv.org/abs/1904.00592) in PyTorch
+Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Dataset](https://www.kaggle.com/datasets/hammadjavaid/multi-source-satellite-imagery-for-segmentation/data) with [UNet](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28) and [ResUNet-a](https://arxiv.org/abs/1904.00592) in PyTorch, with graphical interface in Streamlit.
 
+<img src='/img/app.gif'>
+
+## Results 
 <img src='/img/res_unet_a_segmentation_results.png'>
 <img src='/img/unet_segmentation_results.png'>
 
@@ -9,6 +12,8 @@ Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Da
 <img src='img/architectures.png'>
 
 ## Preprocessing
+1. __Sharpen__ `transforms.functional.adjust_sharpness(image, 2)`
+2. __Increased saturation__ `transforms.ColorJitter(contrast=(1.25, 1.25))`
 <p align='center'>
   <img src='/img/preprocessing.png' width='60%'>
 </p>
