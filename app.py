@@ -100,7 +100,7 @@ def preprocessing(im):
     croped_img = im.crop((left, top, right, bottom))
     resized_img = transforms.Resize((512, 512))(croped_img)
     saturated_img = transforms.ColorJitter(contrast=(1.25, 1.25))(resized_img)
-    sharpened_img = transforms.functional.adjust_sharpness(saturated_img, 2)
+    sharpened_img = transforms.functional.adjust_sharpness(saturated_img, 3)
     
     img_tensor = transforms.ToTensor()(sharpened_img)
     
@@ -113,8 +113,6 @@ developed by Tom Lam
 """)
 
 img_col1, img_col2 = st.columns(2)
-img_preview = st.empty()
-img_prediction = st.empty()
 img_class_placeholder = st.empty()
 
 with st.sidebar:
@@ -140,10 +138,16 @@ if custom_image_button and uploaded_file:
     img, img_tensor = preprocessing(im)
 
     image = np.asarray(img)
-    img_preview.image(image, caption="Preview")
+    img_col1.subheader("Preview")
+    img_col1.image(image)
 
     x = img_tensor
-    print(x.shape)
-    print(x.min(), x.max())
     pred_img = torch.squeeze(predict(x), 0)
-    img_prediction.image(pred_img.cpu().permute(1, 2, 0).numpy(), caption="Prediction")
+    img_col2.subheader("Prediction")
+    img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
+
+    patches = get_color_patches(COLOR_MAP, MASK_LABELS)
+    fig, ax = plt.subplots(figsize=(8, 0.5))
+    ax.set_axis_off()
+    plt.legend(handles=patches, loc='center', fontsize=10, ncol=6)
+    img_class_placeholder.write(fig)
