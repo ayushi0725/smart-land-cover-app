@@ -3,8 +3,12 @@ Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Da
 
 <img src='/img/app.gif'>
 
-Run the app locally using this command to see the segmentation results.
+Install all dependencies
+```bash
+pip install -r requirements.txt
+```
 
+Run the app locally using this command to see the segmentation results.
 ```bash
 python -m streamlit run app.py
 ```
