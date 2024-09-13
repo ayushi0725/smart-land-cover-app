@@ -5,6 +5,5 @@ unet/unet_50ep_checkpoint.pth
 test.ipynb
 train_res_unet_a_copy.ipynb
 test2.ipynb
-images
 test3.ipynb
 res_unet_a/loss.py
