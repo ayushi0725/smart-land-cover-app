@@ -13,17 +13,17 @@ from utils import one_hot_to_image, image_to_class_index, class_index_to_image
 
 
 class SatelliteImageDataset(Dataset):
-    def __init__(self, image_dir, mask_dir, dest_image_dir=None, dest_mask_dir=None, num_classes=6):
+    def __init__(self, image_dir, mask_dir, aug_image_dir=None, aug_mask_dir=None, num_classes=6):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
-        self.augmented_image_dir = dest_image_dir
-        self.augmented_mask_dir = dest_mask_dir
+        self.augmented_image_dir = aug_image_dir
+        self.augmented_mask_dir = aug_mask_dir
         self.num_classes = num_classes
 
         self.image_filenames = sorted(os.listdir(self.image_dir))
         self.mask_filenames = sorted(os.listdir(self.mask_dir))
 
-        if dest_image_dir and dest_mask_dir:
+        if aug_image_dir and aug_mask_dir:
             self.augmented_image_filenames = sorted(os.listdir(self.augmented_image_dir))
             self.augmented_mask_filenames = sorted(os.listdir(self.augmented_mask_dir))
         else:
