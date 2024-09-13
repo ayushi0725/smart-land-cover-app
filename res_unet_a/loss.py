@@ -48,11 +48,60 @@ class ComplementedTanimotoLoss(nn.Module):
         loss_complement = self.loss_func(1 - y_pred, 1 - y)
 
         return (loss + loss_complement) / 2
+    
+
+class DiceLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, y_pred, y, epsilon=1e-7):
+        """
+        Input shapes
+        y_pred: (b, c, h, w) in binary
+        y: (b, h, w) with class indices
+        """
+        num_classes = y_pred.shape[1]
+
+        y_one_hot = F.one_hot(y.long(), num_classes).permute(0, 3, 1, 2)
+        y_pred_softmax = torch.softmax(y_pred, dim=1)
+
+        dice = 0
+        for index in range(num_classes):
+            dice += dice_coef(y_pred_softmax[:, index, :, :], y_one_hot[:, index, :, :], epsilon)
+
+        dice /= num_classes
+
+        return 1 - dice
+
+
+def dice_coef(y_pred_one_hot, y_one_hot, epsilon=1e-7):
+    """
+    Input shapes
+    y_pred_one_hot: (b, h, w) in binary
+    y_one_hot: (b, h, w) in binary
+    """
+    y_flatten = y_one_hot.view(y_one_hot.shape[0], -1)
+    y_pred_flatten = y_pred_one_hot.view(y_pred_one_hot.shape[0], -1)
+
+    intersection = torch.sum(y_flatten * y_pred_flatten, 1)
+    union = torch.sum(y_flatten, 1) + torch.sum(y_pred_flatten, 1) 
+    coef = (2 * intersection + epsilon) / (union + epsilon)
+
+    return coef.mean()
 
 
 if __name__ == '__main__':
+    """
     label = torch.randn([4, 5, 5])
     V = torch.sum(label, dim=[1, 2])
     V_mean = torch.mean(V, dim=0)
     print(V.shape)
     print(V_mean.shape)
+    """
+    
+    #y = torch.randint(low=0, high=6, size=(5, 512, 512))
+    y_pred = torch.rand(5, 6, 512, 512)
+    y = torch.argmax(y_pred.clone(), 1)
+    dice_loss = DiceLoss()
+    
+    print(dice_loss(y_pred, y))

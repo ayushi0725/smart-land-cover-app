@@ -125,7 +125,7 @@ with st.sidebar:
 
     st.write("""
     # Use a custom image
-    For demostration purpose only, the model does not generalize well with real-world data.
+    For demostration purpose only, the model does not generalize well with real-world data. The model works best with images that consist of multiple land cover types. 
     """)
 
     uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg"])
