@@ -46,11 +46,11 @@ def load_test_set():
 
 @st.cache_resource
 def load_models():
-    unet_checkpoint = torch.load('unet/unet_100ep_checkpoint.pth', weights_only=False)
+    unet_checkpoint = torch.load('unet/unet_100ep_checkpoint.pth', map_location=DEVICE, weights_only=False)
     unet = UNet(3, 6).to(DEVICE)
     unet.load_state_dict(unet_checkpoint['model_state_dict'])
 
-    res_unet_a_checkpoint = torch.load('res_unet_a/res_unet_a_100ep_checkpoint.pth', weights_only=False)
+    res_unet_a_checkpoint = torch.load('res_unet_a/res_unet_a_100ep_checkpoint.pth', map_location=DEVICE, weights_only=False)
     res_unet_a = ResUNetA(3, 6).to(DEVICE)
     res_unet_a.load_state_dict(res_unet_a_checkpoint['model_state_dict'])
 
