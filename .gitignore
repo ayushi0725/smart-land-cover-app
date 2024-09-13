@@ -1,5 +1,4 @@
 **/__pycache__
-data
 .DS_Store
 res_unet_a/res_unet_a_50ep_checkpoint.pth
 unet/unet_50ep_checkpoint.pth
