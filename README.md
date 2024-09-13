@@ -3,6 +3,12 @@ Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Da
 
 <img src='/img/app.gif'>
 
+Run the app locally using this command to see the segmentation results.
+
+```bash
+python -m streamlit run app.py
+```
+
 ## Results 
 <img src='/img/res_unet_a_segmentation_results.png'>
 <img src='/img/unet_segmentation_results.png'>
