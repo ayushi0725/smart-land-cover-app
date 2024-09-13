@@ -79,7 +79,7 @@ class SatelliteImageDataset(Dataset):
     def __len__(self):
         return len(self.augmented_image_filenames) if self.augmented_image_filenames else len(self.image_filenames)
     
-    def augmentation(self, dest_image_dir, dest_mask_dir):
+    def augment(self, dest_image_dir, dest_mask_dir):
         self.augmented_image_dir = dest_image_dir
         self.augmented_mask_dir = dest_mask_dir
 
