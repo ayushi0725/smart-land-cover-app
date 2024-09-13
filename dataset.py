@@ -59,8 +59,9 @@ class SatelliteImageDataset(Dataset):
 
         transform = transforms.Compose([
             transforms.ToPILImage(),
+            transforms.ColorJitter(contrast=(1.25, 1.25)),
             transforms.Resize((512, 512)),
-            transforms.ToTensor(),
+            transforms.ToTensor()
         ])
         # (c, h, w)
         image = transform(image)
@@ -99,7 +100,7 @@ class SatelliteImageDataset(Dataset):
                     transformed_image, transformed_mask = transform(image, mask)
         
                     transformed_image = transforms.ColorJitter(
-                        brightness=(0.8, 1.3), hue=(-0.15, 0.15), contrast=(1.25, 1.25)
+                        brightness=(0.8, 1.3), hue=(-0.15, 0.15)
                     )(transformed_image)
 
                 # Get the filename of the new image (name + version)
