@@ -11,6 +11,28 @@ Semantic segmentation of the [Multi-Source Satellite Imagery for Segmentation Da
 
 <img src='img/architectures.png'>
 
+## Augmentation [Optional]
+Use the `augment` method in the dataset class to create randomly cropped, flipped and color changed images. <br>
+Change the dataset initialization to the following code in the notebook and run all the cells to re-train the models.
+
+```python
+dataset = SatelliteImageDataset(
+    image_dir='data/images',mask_dir='data/masks',
+)
+dataset.augment(dest_image_dir='data/augmented_images', dest_mask_dir='data/augmented_masks')
+```
+
+The `augment` method only has to be executed once. Use this command if you would want to load the dataset in different files.
+
+```python
+dataset = SatelliteImageDataset(
+    image_dir='data/images',
+    mask_dir='data/masks',
+    aug_image_dir='data/augmented_images',
+    aug_mask_dir='data/augmented_masks'
+)
+```
+
 ## Preprocessing
 1. __Sharpen__ `transforms.functional.adjust_sharpness(image, 2)`
 2. __Increased saturation__ `transforms.ColorJitter(contrast=(1.25, 1.25))`
