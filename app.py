@@ -26,6 +26,16 @@ COLOR_MAP = {
 
 MASK_LABELS = ['building', 'land', 'road', 'vegetation', 'water', 'unknown']
 
+# Create reverse mapping: class_id → name
+COLOR_ID_TO_NAME = {
+    0: 'Building',
+    1: 'Land',
+    2: 'Road',
+    3: 'Vegetation',
+    4: 'Water',
+    5: 'Unknown'
+}
+
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
@@ -65,9 +75,19 @@ def gen_example():
     img_col1.subheader("Preview")
     img_col1.image(img.permute(1, 2, 0).numpy())
 
-    pred_img = torch.squeeze(predict(img), 0)
+    # pred_img = torch.squeeze(predict(img), 0)
+    # img_col2.subheader("Prediction")
+    # img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
+
+    # # Show % breakdown
+    # show_class_percentage(torch.argmax(pred_img, dim=0))
+    
+    pred_img, class_map = predict(img)
     img_col2.subheader("Prediction")
-    img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
+    img_col2.image(pred_img.squeeze(0).cpu().permute(1, 2, 0).numpy())
+
+    # Accurate % from class_map
+    show_class_percentage(class_map)
 
     patches = get_color_patches(COLOR_MAP, MASK_LABELS)
     fig, ax = plt.subplots(figsize=(8, 0.5))
@@ -75,17 +95,48 @@ def gen_example():
     plt.legend(handles=patches, loc='center', fontsize=10, ncol=6)
     img_class_placeholder.write(fig)
 
+    
 
+
+# def predict(x):
+#     unet, res_unet_a = load_models()
+#     with torch.no_grad():
+#         x.to(DEVICE)
+
+#         model = unet if model_selection == 'UNet' else res_unet_a
+#         y_pred = model(torch.unsqueeze(x, 0).to(DEVICE))
+#         pred_img = one_hot_to_image(y_pred, COLOR_MAP, DEVICE)
+
+#     return pred_img
 def predict(x):
     unet, res_unet_a = load_models()
     with torch.no_grad():
-        x.to(DEVICE)
+        x = x.to(DEVICE)
 
         model = unet if model_selection == 'UNet' else res_unet_a
-        y_pred = model(torch.unsqueeze(x, 0).to(DEVICE))
-        pred_img = one_hot_to_image(y_pred, COLOR_MAP, DEVICE)
+        y_pred = model(torch.unsqueeze(x, 0).to(DEVICE))  # shape: [1, C, H, W]
+        class_map = torch.argmax(y_pred.squeeze(), dim=0)  # shape: [H, W]
+        pred_img = one_hot_to_image(y_pred, COLOR_MAP, DEVICE)  # RGB image
 
-    return pred_img
+    return pred_img, class_map
+
+
+def show_class_percentage(pred_mask_tensor):
+    pred_mask_np = pred_mask_tensor.cpu().numpy()
+    unique_classes, counts = np.unique(pred_mask_np, return_counts=True)
+    total_pixels = pred_mask_np.size
+
+    st.subheader("🧮 Class-wise Area Breakdown:")
+    for cls, cnt in zip(unique_classes, counts):
+        percent = (cnt / total_pixels) * 100
+        class_name = COLOR_ID_TO_NAME.get(cls, f"Class {cls}")
+        st.write(f"🔹 {class_name}: {percent:.2f}%")
+    
+    # Optional Pie Chart
+    fig, ax = plt.subplots()
+    ax.pie(counts, labels=[COLOR_ID_TO_NAME[c] for c in unique_classes], autopct='%1.1f%%')
+    ax.axis('equal')
+    st.pyplot(fig)
 
 
 def preprocessing(im):
@@ -146,6 +197,9 @@ if custom_image_button and uploaded_file:
     pred_img = torch.squeeze(predict(x), 0)
     img_col2.subheader("Prediction")
     img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
+
+    # Show % breakdown
+    show_class_percentage(torch.argmax(pred_img, dim=0))
 
     patches = get_color_patches(COLOR_MAP, MASK_LABELS)
     fig, ax = plt.subplots(figsize=(8, 0.5))
