@@ -156,3 +156,12 @@ def get_color_patches(color_map, mask_labels):
         ))
 
     return patches
+
+def save_model(model, optimizer, loss_fn, epoch, path):
+    import torch
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss_fn': loss_fn,
+    }, path)

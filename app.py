@@ -194,7 +194,8 @@ if custom_image_button and uploaded_file:
     img_col1.image(image)
 
     x = img_tensor
-    pred_img = torch.squeeze(predict(x), 0)
+    pred_img, class_map = predict(x)
+    pred_img = torch.squeeze(pred_img, 0)  # only on the image
     img_col2.subheader("Prediction")
     img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
 
