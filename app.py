@@ -12,6 +12,7 @@ from torchvision import transforms
 from dataset import SatelliteImageDataset
 from res_unet_a import ResUNetA
 from unet import UNet
+from adunet.adunet import ADUNet
 from utils import one_hot_to_image, get_color_patches
 
 
@@ -64,7 +65,11 @@ def load_models():
     res_unet_a = ResUNetA(3, 6).to(DEVICE)
     res_unet_a.load_state_dict(res_unet_a_checkpoint['model_state_dict'])
 
-    return unet, res_unet_a
+    adunet_checkpoint = torch.load('adunet/adunet_100ep_checkpoint.pth', map_location=DEVICE)
+    adunet = ADUNet(3, 6).to(DEVICE)
+    adunet.load_state_dict(adunet_checkpoint['model_state_dict'])
+
+    return unet, res_unet_a, adunet
 
 
 def gen_example():
@@ -96,25 +101,20 @@ def gen_example():
     img_class_placeholder.write(fig)
 
     
-
-
-# def predict(x):
-#     unet, res_unet_a = load_models()
-#     with torch.no_grad():
-#         x.to(DEVICE)
-
-#         model = unet if model_selection == 'UNet' else res_unet_a
-#         y_pred = model(torch.unsqueeze(x, 0).to(DEVICE))
-#         pred_img = one_hot_to_image(y_pred, COLOR_MAP, DEVICE)
-
-#     return pred_img
 def predict(x):
-    unet, res_unet_a = load_models()
+    unet, res_unet_a, adunet = load_models()
+    
     with torch.no_grad():
         x = x.to(DEVICE)
 
-        model = unet if model_selection == 'UNet' else res_unet_a
-        y_pred = model(torch.unsqueeze(x, 0).to(DEVICE))  # shape: [1, C, H, W]
+        if model_selection == 'UNet':
+            model = unet
+        elif model_selection == 'ResUNet-a':
+            model = res_unet_a
+        else:
+            model = adunet
+
+        y_pred = model(torch.unsqueeze(x, 0))  # shape: [1, C, H, W]
         class_map = torch.argmax(y_pred.squeeze(), dim=0)  # shape: [H, W]
         pred_img = one_hot_to_image(y_pred, COLOR_MAP, DEVICE)  # RGB image
 
@@ -166,7 +166,8 @@ img_col1, img_col2 = st.columns(2)
 img_class_placeholder = st.empty()
 
 with st.sidebar:
-    model_selection = st.selectbox("Select a model", ("UNet" , "ResUNet-a"))
+    model_selection = st.selectbox("Select a model", ("UNet", "ResUNet-a", "ADUNet"))
+
 
     st.write("""
     # Use a random unseen image
@@ -200,7 +201,7 @@ if custom_image_button and uploaded_file:
     img_col2.image(pred_img.cpu().permute(1, 2, 0).numpy())
 
     # Show % breakdown
-    show_class_percentage(torch.argmax(pred_img, dim=0))
+    show_class_percentage(class_map)
 
     patches = get_color_patches(COLOR_MAP, MASK_LABELS)
     fig, ax = plt.subplots(figsize=(8, 0.5))
